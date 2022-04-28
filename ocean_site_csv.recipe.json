@@ -1,0 +1,600 @@
+{
+  "name": "Ocean_site CSV ",
+  "description": "When there is a trigger on a specified schedule, do action",
+  "version": 83,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "clock",
+    "name": "scheduled_event",
+    "as": "1e2e0b9a",
+    "title": null,
+    "description": "<span class=\"provider\">Trigger</span> every 5 minutes",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+    },
+    "toggleCfg": {
+    },
+    "input": {
+      "time_unit": "minutes",
+      "trigger_every": "5"
+    },
+    "extended_input_schema": [
+      {
+        "type": "string",
+        "name": "trigger_every",
+        "control_type": "integer",
+        "label": "Trigger every",
+        "hint": "Define repeating schedule. Enter whole numbers only.\n                        This field can be set to a minimum of 5 minutes.",
+        "default": "5",
+        "optional": false,
+        "extends_schema": true
+      },
+      {
+        "type": "date_time",
+        "name": "start_after",
+        "control_type": "date_time",
+        "label": "Start after",
+        "hint": "Set date and time to start or leave blank to start immediately. <b>Once recipe has been run or tested, value cannot be changed.</b>",
+        "optional": true,
+        "extends_schema": true,
+        "since_field": true,
+        "render_input": "date_time_conversion",
+        "parse_output": "date_time_conversion"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "google_drive",
+        "name": "download_file_contents",
+        "as": "c3706767",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "fileId": {
+            "ids": [
+              "0AKrSi-YSRI15Uk9PVA",
+              "1i2xM2uT1BETPQg3pGEA2WSZSq6VzjkpX"
+            ],
+            "titles": [
+              "My Drive",
+              "OCEAN_SITE (1).csv"
+            ]
+          }
+        },
+        "toggleCfg": {
+          "fileId": false
+        },
+        "input": {
+          "fileId": "1i2xM2uT1BETPQg3pGEA2WSZSq6VzjkpX"
+        },
+        "uuid": "1b93819a-89a5-4248-9c56-64eff5cf52f3"
+      },
+      {
+        "number": 2,
+        "provider": "logger",
+        "name": "log_message",
+        "as": "41212c58",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "input": {
+          "message": "#{_('data.google_drive.c3706767.payload')}"
+        },
+        "comment": "Converts stream input to string.",
+        "uuid": "e64f904d-cb2f-42fd-a8dc-6a82dc3875a6",
+        "skip": false
+      },
+      {
+        "number": 3,
+        "provider": "logger",
+        "name": "log_message",
+        "as": "92d47239",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "input": {
+          "message": "=_('data.logger.41212c58.message').gsub(/\\u00B0/,\" \").gsub('\"',\"\").gsub(/[é]/,\"e\").gsub(/[ê]/,\"e\")"
+        },
+        "comment": "Parameterize",
+        "uuid": "13a67417-1618-4ee5-bf3c-d1f47ade5378",
+        "skip": true
+      },
+      {
+        "number": 4,
+        "provider": "logger",
+        "name": "log_message",
+        "as": "770f996f",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "input": {
+          "message": "=_('data.logger.41212c58.message').gsub(/\\u00B0/,\" \").parameterize"
+        },
+        "comment": "Parameterize",
+        "uuid": "d264b6c0-badd-44c5-a32e-a2aeb0219329",
+        "skip": true
+      },
+      {
+        "number": 5,
+        "provider": "logger",
+        "name": "log_message",
+        "as": "0370d1c3",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "input": {
+          "message": "=_('data.logger.41212c58.message').gsub(\"'\", \" \").gsub(/\\u00B0/,\" \").gsub(/[é]/, \"e\").gsub(/[â]/,\"a\").gsub(/[è]/, \"e\").gsub(/[ê]/,\"e\").gsub(\";\",'\"').gsub(\" \",\"null\")"
+        },
+        "comment": "Transliterate",
+        "uuid": "de94e372-e9be-42ad-acb1-99fc3463ed66",
+        "skip": false
+      },
+      {
+        "number": 6,
+        "provider": "logger",
+        "name": "log_message",
+        "as": "c017b190",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "input": {
+          "message": "=_('data.logger.0370d1c3.message').transliterate"
+        },
+        "uuid": "366c2276-3ac3-419c-baf0-c67ffe405867"
+      },
+      {
+        "number": 7,
+        "keyword": "try",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "input": {
+        },
+        "block": [
+          {
+            "number": 8,
+            "provider": "csv_parser",
+            "name": "parse_csv",
+            "as": "f66d7e2e",
+            "title": null,
+            "description": null,
+            "keyword": "action",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "col_sep": ",",
+              "skip_first_line": "true",
+              "column_value_by": "index",
+              "quote_char": "\"",
+              "csv_content": "#{_('data.logger.c017b190.message')}",
+              "header_line": "SIT_ID,DEP_NUM,REG_NUM,ZGE_ID,TPS_ID,SIT_NUMG2R,SIT_NOM,SIT_COOXREEL,SIT_COOYREEL,SIT_COOZREEL,SIT_COOXSIM,SIT_COOYSI,SIT_COOZSIM,SIT_LONGIT,SIT_LATIT,SIT_NSCADAS,SIT_NPCADAS,SIT_INSEE,SIT_COMMENT,SIT_QUI,SIT_QUAND,SIT_ADRESSE,SIT_COMPADR,SIT_LIEUDIT,SIT_CODPOST,SIT_COMMUNE,SIT_PROPR,SIT_RESPONS,SIT_TEL,SIT_FAX,SIT_VERSION,SIT_ZPID,TYPE_SITE_RS_ID,SIT_PHASE,OPP_ID,SIT_RS,SIT_ZONERS,SIT_PLQEXPL,SIT_SANTE,CONF_HARD,CONF_INTERNE,PLAQ_CONCEPT_ID,PLAQ_CONCEPT_LABEL,PLAQ_DEPL_LABEL,PLAQ_DEPL_ID,SPECIAUX_LABEL,FRONTIERE,SIT_ZONE,ERS_ID"
+            },
+            "extended_output_schema": [
+              {
+                "type": "array",
+                "name": "lines",
+                "label": "Lines",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "SIT_ID",
+                    "type": "string",
+                    "name": "column_0"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "DEP_NUM",
+                    "type": "string",
+                    "name": "column_1"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "REG_NUM",
+                    "type": "string",
+                    "name": "column_2"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ZGE_ID",
+                    "type": "string",
+                    "name": "column_3"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "TPS_ID",
+                    "type": "string",
+                    "name": "column_4"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_NUMG2R",
+                    "type": "string",
+                    "name": "column_5"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_NOM",
+                    "type": "string",
+                    "name": "column_6"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_COOXREEL",
+                    "type": "string",
+                    "name": "column_7"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_COOYREEL",
+                    "type": "string",
+                    "name": "column_8"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_COOZREEL",
+                    "type": "string",
+                    "name": "column_9"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_COOXSIM",
+                    "type": "string",
+                    "name": "column_10"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_COOYSI",
+                    "type": "string",
+                    "name": "column_11"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_COOZSIM",
+                    "type": "string",
+                    "name": "column_12"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_LONGIT",
+                    "type": "string",
+                    "name": "column_13"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_LATIT",
+                    "type": "string",
+                    "name": "column_14"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_NSCADAS",
+                    "type": "string",
+                    "name": "column_15"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_NPCADAS",
+                    "type": "string",
+                    "name": "column_16"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_INSEE",
+                    "type": "string",
+                    "name": "column_17"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_COMMENT",
+                    "type": "string",
+                    "name": "column_18"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_QUI",
+                    "type": "string",
+                    "name": "column_19"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_QUAND",
+                    "type": "string",
+                    "name": "column_20"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_ADRESSE",
+                    "type": "string",
+                    "name": "column_21"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_COMPADR",
+                    "type": "string",
+                    "name": "column_22"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_LIEUDIT",
+                    "type": "string",
+                    "name": "column_23"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_CODPOST",
+                    "type": "string",
+                    "name": "column_24"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_COMMUNE",
+                    "type": "string",
+                    "name": "column_25"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_PROPR",
+                    "type": "string",
+                    "name": "column_26"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_RESPONS",
+                    "type": "string",
+                    "name": "column_27"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_TEL",
+                    "type": "string",
+                    "name": "column_28"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_FAX",
+                    "type": "string",
+                    "name": "column_29"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_VERSION",
+                    "type": "string",
+                    "name": "column_30"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_ZPID",
+                    "type": "string",
+                    "name": "column_31"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "TYPE_SITE_RS_ID",
+                    "type": "string",
+                    "name": "column_32"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_PHASE",
+                    "type": "string",
+                    "name": "column_33"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "OPP_ID",
+                    "type": "string",
+                    "name": "column_34"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_RS",
+                    "type": "string",
+                    "name": "column_35"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_ZONERS",
+                    "type": "string",
+                    "name": "column_36"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_PLQEXPL",
+                    "type": "string",
+                    "name": "column_37"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_SANTE",
+                    "type": "string",
+                    "name": "column_38"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "CONF_HARD",
+                    "type": "string",
+                    "name": "column_39"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "CONF_INTERNE",
+                    "type": "string",
+                    "name": "column_40"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "PLAQ_CONCEPT_ID",
+                    "type": "string",
+                    "name": "column_41"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "PLAQ_CONCEPT_LABEL",
+                    "type": "string",
+                    "name": "column_42"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "PLAQ_DEPL_LABEL",
+                    "type": "string",
+                    "name": "column_43"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "PLAQ_DEPL_ID",
+                    "type": "string",
+                    "name": "column_44"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SPECIAUX_LABEL",
+                    "type": "string",
+                    "name": "column_45"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "FRONTIERE",
+                    "type": "string",
+                    "name": "column_46"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "SIT_ZONE",
+                    "type": "string",
+                    "name": "column_47"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ERS_ID",
+                    "type": "string",
+                    "name": "column_48"
+                  }
+                ]
+              }
+            ],
+            "uuid": "43419282-3ed4-482d-9c8e-ee487f39cb95",
+            "skip": false
+          },
+          {
+            "number": 9,
+            "as": "04374a9a",
+            "keyword": "catch",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 10,
+                "provider": "logger",
+                "name": "log_message",
+                "as": "aba7bc8a",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "message": "#{_('data.catch.04374a9a.type')}, #{_('data.catch.04374a9a.message')}"
+                },
+                "uuid": "c4f7dd91-d66f-4a6e-86d3-b52617dadd99"
+              },
+              {
+                "number": 11,
+                "keyword": "stop",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "stop_with_error": "false"
+                },
+                "uuid": "7a770291-1732-42a4-bed1-3b97c1d8baae"
+              }
+            ],
+            "uuid": "7430a8ff-fc8f-4ab6-9d9a-6fa246530c8b"
+          }
+        ],
+        "uuid": "e674c2b5-e441-4a84-ae11-882f469b1275"
+      },
+      {
+        "number": 12,
+        "provider": "json_parser",
+        "name": "parse_json",
+        "as": "dfe95684",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "input": {
+          "sample_document": "{\n\"SIT_ID;DEP_NUM;REG_NUM;ZGE_ID;TPS_ID;SIT_NUMG2R;SIT_NOM;SIT_COOXREEL;SIT_COOYREEL;SIT_COOZREEL;SIT_COOXSIM;SIT_COOYSIM;SIT_COOZSIM;SIT_LONGIT;SIT_LATIT;SIT_NSCADAS;SIT_NPCADAS;SIT_INSEE;SIT_COMMENT;SIT_QUI;SIT_QUAND;SIT_ADRESSE;SIT_COMPADR;SIT_LIEUDIT;SIT_CODPOST;SIT_COMMUNE;SIT_PROPR;SIT_RESPONS;SIT_TEL;SIT_FAX;SIT_VERSION;SIT_ZPID;TYPE_SITE_RS_ID;SIT_PHASE;OPP_ID;SIT_RS;SIT_ZONERS;SIT_PLQEXPL;SIT_SANTE;CONF_HARD;CONF_INTERNE;PLAQ_CONCEPT_ID;PLAQ_CONCEPT_LABEL;PLAQ_DEPL_LABEL;PLAQ_DEPL_ID;SPECIAUX_LABEL;FRONTIERE;SIT_ZONE;ERS_ID\\r\\n160;6;5;;;060380;\\\"ANTIBES PINEDE\\\";986.267;1852.422;5;986.267;1852.422;5;\\\"07°06'50\\\"\\\"E\\\";\\\"43°34'05\\\"\\\"N\\\";CM;139;06004;\\\"Micro de densif désature ANTIBES CASINO S0 .Equipement réel: K751167\\\";RSU;\\\"2022-02-12 00:00:00\\\";\\\"16  BOULEVARD EDOUARD BAUDOIN\\\";\\\"Résidence Pagoda\\\";;06160;ANTIBES;SFR;\\\" \\\";\\\" \\\";\\\" \\\";346;;;;1;0;4;;;;;Zone21;Zone21;NICE;NICE;;N;ZTD;\\r\\n32;73;4;274;;730066;\\\"ST JEAN DE CHEVELU\\\";872.652;2083.689;570;872.66;2083.76;529;\\\"05°50'18\\\"\\\"E\\\";\\\"45°41'56\\\"\\\"N\\\";;;…\"\n}",
+          "document": "=_('data.google_drive.c3706767.payload').index( /[^[:alnum:]]/ ) ? _('data.google_drive.c3706767.payload').gsub(/[^0-9A-Za-z]/, '') : _('data.google_drive.c3706767.payload')"
+        },
+        "uuid": "a15675d9-36c9-4f4d-a2db-36c87a8500fa",
+        "skip": true
+      }
+    ],
+    "uuid": "ba3e142d-8e85-447c-9073-43c617836cab"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "google_drive",
+      "account_id": {
+        "zip_name": "lrc_google_drive_account.connection.json",
+        "name": "LRC Google Drive account",
+        "folder": ""
+      },
+      "skip_validation": false
+    },
+    {
+      "keyword": "application",
+      "provider": "csv_parser",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "logger",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "json_parser",
+      "skip_validation": true,
+      "account_id": null
+    }
+  ]
+}
