@@ -1,0 +1,6 @@
+{
+  "name": "My HubSpot account",
+  "provider": "hubspot",
+  "secure_gateway_tunnel_name": null,
+  "root_folder": false
+}
